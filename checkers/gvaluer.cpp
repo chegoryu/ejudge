@@ -203,16 +203,16 @@ public:
         passed_set.insert(test_num);
     }
 
-    bool is_zero_set() const
+    bool is_zero_score() const
     {
-        for (int i = 0; i < int(zero_sets.size()); ++i) {
-            if (passed_set == zero_sets[i])
+        for (const auto& zero_set : zero_sets) {
+            if (passed_set == zero_set)
                 return true;
         }
-        for (int i = 0; i < int(zero_subsets.size()); ++i) {
+        for (const auto& zero_subset : zero_subsets) {
             bool is_subset = true;
-            for (auto it = passed_set.begin(); it != passed_set.end(); ++it) {
-                if (zero_subsets[i].find(*it) == zero_subsets[i].end()) {
+            for (int test : passed_set) {
+                if (zero_subset.find(test) == zero_subset.end()) {
                     is_subset = false;
                     break;
                 }
@@ -466,7 +466,7 @@ public:
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
             } else if (token == "0_if" || token == "0_if_subset") {
-                string first_token = token;
+                string directive = token;
                 set<int> zs;
                 try {
                     next_token();
@@ -485,7 +485,7 @@ public:
                     parse_error("NUM expected");
                 }
                 if (t_type != ';') parse_error("';' expected");
-                if (first_token == "0_if") {
+                if (directive == "0_if") {
                     g.add_zero_set(move(zs));
                 } else {
                     g.add_zero_subset(move(zs));
@@ -824,7 +824,7 @@ main(int argc, char *argv[])
         } else if (g->get_test_score() >= 0) {
             // by-test score, just go on
             if (test_num == g->get_last()) {
-                if (g->is_zero_set()) {
+                if (g->is_zero_score()) {
                     char buf[1024];
                     if (locale_id == 1) {
                         snprintf(buf, sizeof(buf), "Группа тестов %s (%d-%d) оценена в 0 баллов, "
